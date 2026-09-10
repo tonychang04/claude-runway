@@ -1,0 +1,32 @@
+import {test,expect} from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
+const root=path.resolve(import.meta.dirname,'../.state');
+test.use({channel:'chrome',viewport:{width:1440,height:1050}});
+test('dashboard renders live accounts, controls and isolated sessions',async({page})=>{
+ const key=fs.readFileSync(path.join(root,'dashboard.key'),'utf8');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(key=>sessionStorage.setItem('switchboard-key',key),key);
+ await page.goto('http://127.0.0.1:43127');
+ await expect(page.getByRole('heading',{name:'Keep your flow.'})).toBeVisible();
+ await expect(page.locator('.card').first()).toBeVisible();
+ await expect(page.locator('#connection')).toContainText('Connected');
+ await expect(page.getByRole('heading',{name:'Elsewhere on this Mac'})).toBeVisible();
+ await expect(page.locator('.session').last()).toBeVisible();
+ await page.locator('#connect').click();
+ await expect(page.getByRole('dialog')).toContainText('Start official sign-in');
+ await page.locator('[data-close="account-dialog"]').click();
+ await page.getByRole('button',{name:'Open terminal'}).last().click();
+ await expect(page.locator('#terminal')).toContainText('Claude');
+ await page.locator('[data-close="terminal-dialog"]').click();
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.screenshot({path:path.join(import.meta.dirname,'../dashboard-preview.png'),fullPage:true});
+ expect(errors).toEqual([]);
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);
+});
+test('API refuses unauthenticated and cross-origin requests',async({request})=>{
+ const key=fs.readFileSync(path.join(root,'dashboard.key'),'utf8');
+ expect((await request.get('http://127.0.0.1:43127/api/status')).status()).toBe(401);
+ expect((await request.post('http://127.0.0.1:43127/api/switch',{headers:{Authorization:'Bearer '+key,Origin:'https://evil.example','Content-Type':'application/json'},data:{id:'invalid'}})).status()).toBe(403);
+});

@@ -1,0 +1,20 @@
+import {test,expect} from '@playwright/test';
+test.use({channel:'chrome'});
+test('six accounts, expiry warnings, external processes and mobile layout',async({page})=>{
+ await page.route('**/api/status',route=>route.fulfill({json:{activeId:'0',autoSwitch:true,threshold:95,accounts:Array.from({length:6},(_,i)=>({id:String(i),name:`account-${i+1}@example.com`,enabled:true,auth:i===5?'expired':'ok',eligible:i!==5,observedAt:new Date().toISOString(),expiresAt:i===5?Date.now()-1000:Date.now()+3600000,windows:[{key:'five_hour',label:'5 hours',used:i*15,resetsAt:new Date(Date.now()+3600000).toISOString()}]})),sessions:[],events:[],localProcesses:{processes:[{pid:123,tty:'ttys001'}],error:null}}}));
+ await page.goto('http://127.0.0.1:43127');
+ await expect(page.locator('.card')).toHaveCount(6);
+ await expect(page.locator('#available')).toHaveText('5 / 6');
+ await expect(page.locator('#external-sessions')).toContainText('PID 123');
+ await expect(page.locator('.card').last()).toContainText('Expired');
+ await page.getByRole('button',{name:'Connect another account'}).click();
+ await expect(page.getByRole('dialog')).toContainText('does not automatically renew');
+ await page.getByText('02 · Paste a setup token instead').click();
+ await expect(page.locator('input[name="token"]')).toBeVisible();
+ await page.locator('[data-close="account-dialog"]').click();
+ await page.setViewportSize({width:1440,height:1100});
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.screenshot({path:'dashboard-six-preview.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);
+});

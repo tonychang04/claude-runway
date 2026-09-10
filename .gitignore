@@ -1,0 +1,14 @@
+.state/
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+*.pem
+*.key
+node_modules/
+*.log
+test-results/
+playwright-report/
+dashboard-preview.png
+dashboard-six-preview.png
