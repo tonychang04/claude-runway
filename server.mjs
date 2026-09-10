@@ -24,7 +24,7 @@ const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,origin);
  if(req.headers.origin&&req.headers.origin!==origin)return json(res,403,{error:'Cross-origin request rejected'});
  if(!url.pathname.startsWith('/api/')){
-  const files={'/':'index.html','/app.js':'app.js','/style.css':'style.css'};const file=files[url.pathname];if(!file||req.method!=='GET')return json(res,404,{error:'Not found'});
+  const files={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/refinements.css':'refinements.css'};const file=files[url.pathname];if(!file||req.method!=='GET')return json(res,404,{error:'Not found'});
   res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');return fs.createReadStream(path.join(import.meta.dirname,'public',file)).pipe(res);
  }
  if(!safeEqual(req.headers.authorization,'Bearer '+secret))return json(res,401,{error:'Open this dashboard with its private access link'});
@@ -33,6 +33,7 @@ const server=http.createServer(async(req,res)=>{
   const b=req.method==='POST'?await body(req):{};
   if(req.method==='GET'&&url.pathname==='/api/status')return json(res,200,{...manager.snapshot(),localProcesses});
   if(req.method==='POST'&&url.pathname==='/api/accounts'){const id=await manager.addAccount(b);return json(res,201,{id})}
+  if(req.method==='POST'&&url.pathname==='/api/accounts/verify')return json(res,200,await manager.verifyAccount(b.id));
   if(req.method==='POST'&&url.pathname==='/api/accounts/update'){const a=manager.getAccount(b.id);if(typeof b.enabled==='boolean')a.enabled=b.enabled;manager.save();return json(res,200,{ok:true})}
   if(req.method==='POST'&&url.pathname==='/api/switch'){await manager.switchTo(b.id);return json(res,200,{ok:true})}
   if(req.method==='POST'&&url.pathname==='/api/settings'){if(typeof b.autoSwitch==='boolean')manager.state.autoSwitch=b.autoSwitch;if(b.threshold!==undefined){if(!Number.isInteger(b.threshold)||b.threshold<50||b.threshold>100)throw Error('Threshold must be 50–100');manager.state.threshold=b.threshold}manager.save();return json(res,200,{ok:true})}

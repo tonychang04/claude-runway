@@ -1,4 +1,4 @@
-# Orbit specification
+# Runway specification
 
 Version: 0.1.0 · Status: experimental · Platform: macOS-first
 
@@ -34,6 +34,14 @@ Repeat for additional accounts; there is no two-account product cap. Token
 fingerprints reject duplicate credentials, not different tokens for the same identity.
 Only one browser enrollment job runs at a time. API keys and cloud authentication
 are not accepted. Reconnect replaces an account's token while retaining its ID.
+
+An explicit Test connection action sends one tiny Haiku request through official
+Claude using an isolated temporary file-based configuration, no tools, safe mode,
+and no session persistence. It has a 45-second timeout, removes its temporary
+configuration afterward, and never switches managed sessions. The UI asks for
+confirmation because this consumes quota. A successful marker establishes request
+access, not account identity, quota availability or future reliability. Only the
+classified result and timestamp are stored; raw CLI output is not exposed.
 
 ### Start or inspect a session
 

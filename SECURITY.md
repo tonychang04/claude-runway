@@ -1,6 +1,6 @@
 # Security
 
-Orbit is experimental local software. Do not expose its HTTP listener through a
+Runway is experimental local software. Do not expose its HTTP listener through a
 public tunnel, reverse proxy or shared network. The private dashboard link grants
 control over managed terminals and accounts; treat it as a credential.
 

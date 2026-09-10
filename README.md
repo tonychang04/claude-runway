@@ -1,4 +1,4 @@
-# Orbit
+# Runway
 
 **Keep your flow.** A local control panel for your Claude Code accounts and sessions.
 
@@ -15,7 +15,9 @@ Requires Node.js 22+, tmux, and official Claude Code. Tested on macOS with Claud
 Code 2.1.268. No npm runtime dependencies.
 
 ```sh
-# From this repository:
+# Clone your repository, then:
+git clone https://github.com/tonychang04/claude-runway.git
+cd claude-runway
 npm ci
 npm start
 # In another terminal:
@@ -43,7 +45,7 @@ does not renew credentials, and no credential is guaranteed never to expire.
 - [Verification](VERIFICATION.md): observed results and remaining live-test gaps.
 - [Security](SECURITY.md): storage model, boundaries and safe reporting.
 - [Contributing](CONTRIBUTING.md): local development and test guidance.
-- [Orbit release notes](ORBIT.md): current dashboard behavior.
+- [Runway release notes](ORBIT.md): current dashboard behavior.
 
 The source lives in `lib/` (account/session logic), `public/` (dashboard),
 `server.mjs` (local API), and `cli.mjs` (terminal entry point).
@@ -64,6 +66,22 @@ need renewal. Sign-in must not be run inside the shared runtime directory.
 Select an account, then start a session with its workspace directory. Use the
 dashboard terminal or copy its tmux attach command to your terminal. Normal
 Claude workspace trust and permission prompts remain in place.
+
+### Connected, but quota unavailable?
+
+Saving a credential, making a Claude request, and reading quota are three different
+checks. Click **Test connection** to send one small Haiku request through official
+Claude in an isolated configuration. This consumes a little quota, requires your
+confirmation, and does not change the account used by existing sessions.
+
+If the connection test passes but quota is unavailable, the token can make requests
+while the usage endpoint may reject or throttle it. You can manually select it
+with **Switch here** and start a managed session. Automatic selection requires
+recent quota and remains disabled for that account until quota is available.
+Adding an account alone does not select it or attach your existing terminals.
+
+To replace a token for an existing account, choose **Reconnect** on its card,
+not Connect account. Different tokens can have identical user-entered labels.
 
 All sessions launched here share `.state/runtime` as `CLAUDE_CONFIG_DIR`, even
 when they work in different project directories. Changing the selected account
@@ -141,7 +159,7 @@ CI runs only the isolated unit tests; it does not sign in or make inference requ
 
 ### Compatibility names
 
-Orbit was initially called Switchboard. `SWITCHBOARD_*` environment variables,
+Runway was initially called Switchboard. `SWITCHBOARD_*` environment variables,
 the `local.switchboard.manager` LaunchAgent and existing tmux socket names remain
 unchanged to preserve current installations. There is no globally installed
 `orbit` command yet; use `node /absolute/path/to/cli.mjs launch` from your project

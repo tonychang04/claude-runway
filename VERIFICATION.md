@@ -58,3 +58,12 @@ switching, six simulated account cards, expiration warnings, connection methods,
 and mobile overflow. Live discovery identified a managed session and two external
 native Claude processes on the development Mac. These are observations on that
 machine, not a guarantee of discovering every Claude surface or historical session.
+
+## New setup-token connection check
+
+A newly enrolled token that returned HTTP 403 from the usage endpoint completed
+an actual isolated Haiku request with the expected `RUNWAY_OK` marker. The test
+used file-based credentials, disabled tools and customizations, and left the
+existing managed session and selected account unchanged. Its temporary test
+directory was removed. This demonstrates request access for that token, not
+working quota lookup or automatic selection when quota is unavailable.

@@ -1,6 +1,6 @@
-# Orbit
+# Runway
 
-The local dashboard is now branded Orbit. Existing data paths, the Switchboard service label, and tmux socket names remain unchanged to preserve running sessions.
+The local dashboard is now branded Runway. Existing data paths, the Switchboard service label, and tmux socket names remain unchanged to preserve running sessions.
 
 ## Accounts
 
