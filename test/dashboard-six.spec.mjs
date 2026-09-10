@@ -22,9 +22,9 @@ test('six accounts, expiry warnings, external processes and mobile layout',async
  await expect(page.locator('.card').last()).toContainText('Expired');
  await page.getByRole('button',{name:'Connect another account'}).click();
  await expect(page.getByRole('dialog')).toContainText('does not automatically renew');
- await page.getByText('02 · Paste a setup token instead').click();
+ await page.getByText('Advanced: paste a setup token').click();
  await expect(page.locator('input[name="token"]')).toBeVisible();
- await page.locator('[data-close="account-dialog"]').click();
+ await page.locator('[data-close="account-dialog"]').first().click();
  await page.setViewportSize({width:1440,height:1100});
  await page.evaluate(()=>window.scrollTo(0,0));
  await page.screenshot({path:'dashboard-six-preview.png',fullPage:true});

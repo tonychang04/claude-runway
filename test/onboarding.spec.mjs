@@ -1,0 +1,34 @@
+import {test,expect} from '@playwright/test';
+test.use({channel:'chrome'});
+test('browser sign-in checks the account and only switches on explicit use',async({page})=>{
+ let selected=null,checks=0,loginName;
+ const account={id:'new',name:'Account 1',enabled:true,auth:'ok',windows:[],eligible:false};
+ await page.route('**/api/status',route=>route.fulfill({json:{activeId:selected,accounts:checks?[account]:[],sessions:[],events:[],threshold:95,localProcesses:{processes:[]}}}));
+ await page.route('**/api/login',route=>{loginName=route.request().postDataJSON().name;return route.fulfill({json:{id:'job'}})});
+ await page.route('**/api/login?id=job',route=>route.fulfill({json:{state:'complete',accountId:'new'}}));
+ await page.route('**/api/accounts/verify',route=>{checks++;return route.fulfill({json:{ok:true,detail:'Official Claude answered a test request using this credential.'}})});
+ await page.route('**/api/switch',route=>{selected=route.request().postDataJSON().id;return route.fulfill({json:{ok:true}})});
+ await page.goto('http://127.0.0.1:43127');
+ await page.locator('#connect').click();
+ await expect(page.getByRole('dialog')).toContainText('uses a little subscription quota');
+ await page.getByRole('button',{name:'Continue with Claude'}).click();
+ await expect(page.locator('#result-title')).toHaveText('You’re connected.');
+ expect(loginName).toBe('Account 1');expect(checks).toBe(1);expect(selected).toBe(null);
+ await expect(page.locator('#result-scope')).toContainText('manually');
+ await page.getByRole('button',{name:'Use this account'}).click();
+ await expect(page.locator('#selected')).toHaveText('Account 1');
+ expect(selected).toBe('new');
+});
+test('failed token check is visible and cannot claim readiness',async({page})=>{
+ await page.route('**/api/status',route=>route.fulfill({json:{accounts:[],sessions:[],events:[],threshold:95,localProcesses:{processes:[]}}}));
+ await page.route('**/api/accounts',route=>route.fulfill({json:{id:'bad'}}));
+ await page.route('**/api/accounts/verify',route=>route.fulfill({json:{ok:false,detail:'Claude rejected this credential. Reconnect the account.'}}));
+ await page.goto('http://127.0.0.1:43127');await page.locator('#connect').click();
+ await page.getByText('Advanced: paste a setup token').click();
+ await page.locator('input[name="token"]').fill('synthetic-fixture');
+ await page.getByRole('button',{name:'Connect and test token'}).click();
+ await expect(page.locator('#result-title')).toHaveText('Saved, but not ready yet');
+ await expect(page.getByRole('button',{name:'Use this account'})).toBeHidden();
+ await expect(page.getByRole('button',{name:'Retry connection check'})).toBeVisible();
+ await expect(page.locator('input[name="token"]')).toHaveValue('');
+});

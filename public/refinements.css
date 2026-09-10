@@ -5,3 +5,6 @@
 .method-note strong{font-size:12px;color:#c6b3ff}
 .method-note p{font-size:12px;line-height:1.7;color:#a0a4ba;margin:8px 0 0}
 .renew-warning{color:#e4bc81}
+[hidden]{display:none!important}
+.connect-intro{text-align:center;padding:12px 0}.connect-intro .terminal-symbol{display:inline-block}.connect-intro h3{font-size:22px;letter-spacing:-.7px;margin:18px 0 8px}.connect-intro p{font-size:13px;line-height:1.7;color:#a0a4ba}
+#account-form label .muted{display:inline;font-size:11px}#account-form{gap:12px}#account-result h3{font-size:25px;letter-spacing:-.8px}#account-result button{margin:8px 8px 0 0}#enrollment-error{color:#edc48c;background:#332b20;border-radius:8px;padding:12px;font-size:12px}#login-flow details{margin:16px 0}

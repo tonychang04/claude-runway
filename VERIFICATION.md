@@ -67,3 +67,12 @@ used file-based credentials, disabled tools and customizations, and left the
 existing managed session and selected account unchanged. Its temporary test
 directory was removed. This demonstrates request access for that token, not
 working quota lookup or automatic selection when quota is unavailable.
+
+## Guided enrollment UI
+
+Synthetic browser tests cover optional account labels, sign-in completion followed
+by one connection check, no account switch until the explicit Use this account
+action, and failed checks that show retry rather than readiness. These tests mock
+provider authorization; they do not establish that every real browser login or
+popup configuration succeeds. A visible sign-in link remains available if the
+automatic browser-tab handoff is blocked.

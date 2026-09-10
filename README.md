@@ -56,12 +56,17 @@ Host headers are rejected. Do not expose it through a public tunnel.
 
 ## Connect accounts and work
 
-Use **Connect account** to launch the official `claude setup-token` enrollment
-flow. Open the sign-in URL and complete it with your chosen account. If the CLI
-asks for a code, submit it through the dashboard. A manually generated setup
-token can also be pasted into the password field. No custom OAuth implementation
-is used. Enrollment still needs human authentication; revoked or expired tokens
-need renewal. Sign-in must not be run inside the shared runtime directory.
+Click **Connect account → Continue with Claude**, then sign in with the account
+you want to add. The label is optional. Runway opens the official sign-in page and
+checks the credential when authorization finishes. As disclosed before continuing,
+that check sends one small Haiku request and consumes a little subscription quota.
+Click **Use this account** after the check passes; existing unmanaged terminals
+are not switched. If popups are blocked, use the sign-in link in the dialog.
+
+Token pasting and authorization-code entry remain available under advanced/details
+sections. No custom OAuth implementation is used. Enrollment still needs human
+authentication; revoked or expired tokens need renewal. Sign-in must not be run
+inside the shared runtime directory.
 
 Select an account, then start a session with its workspace directory. Use the
 dashboard terminal or copy its tmux attach command to your terminal. Normal
@@ -70,7 +75,8 @@ Claude workspace trust and permission prompts remain in place.
 ### Connected, but quota unavailable?
 
 Saving a credential, making a Claude request, and reading quota are three different
-checks. Click **Test connection** to send one small Haiku request through official
+checks. Enrollment includes a connection check. Later, click **Test connection**
+on an account card to send another small Haiku request through official
 Claude in an isolated configuration. This consumes a little quota, requires your
 confirmation, and does not change the account used by existing sessions.
 

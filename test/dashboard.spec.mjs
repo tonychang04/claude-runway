@@ -14,8 +14,8 @@ test('dashboard renders live accounts, controls and isolated sessions',async({pa
  await expect(page.getByRole('heading',{name:'Elsewhere on this Mac'})).toBeVisible();
  await expect(page.locator('.session').last()).toBeVisible();
  await page.locator('#connect').click();
- await expect(page.getByRole('dialog')).toContainText('Start official sign-in');
- await page.locator('[data-close="account-dialog"]').click();
+ await expect(page.getByRole('dialog')).toContainText('Continue with Claude');
+ await page.locator('[data-close="account-dialog"]').first().click();
  await page.getByRole('button',{name:'Open terminal'}).last().click();
  await expect(page.locator('#terminal')).toContainText('Claude');
  await page.locator('[data-close="terminal-dialog"]').click();
