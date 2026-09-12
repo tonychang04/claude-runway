@@ -14,8 +14,7 @@
 <p id="enrollment-error" role="alert" hidden></p>
 <form id="account-form">
 <div class="connect-intro"><span class="terminal-symbol">↗</span><h3>Your subscription. Ready to work.</h3><p>Sign in on Claude’s official website.<br>No API key. No password shared with Runway.</p></div>
-<label>Account label <span class="muted">optional</span><input name="name" maxlength="100" placeholder="Personal, Work, or an email"></label>
-<small>This is a label only. Choose the actual account on Claude’s sign-in page.</small>
+<small>Choose your account on Claude’s official page. Runway assigns a local nickname; setup tokens do not expose a verified email address.</small>
 <button type="submit" id="start-login">Continue with Claude ↗</button>
 <small>After sign-in, we’ll run one small Haiku connection test. This uses a little subscription quota and does not switch your existing sessions.</small>
 <details><summary>Advanced: paste a setup token</summary><p class="muted">Run <code>claude setup-token</code> and authorize the intended account. Paste its token below.</p><label>Setup token<input name="token" type="password" autocomplete="off" placeholder="sk-ant-oat…"></label><button type="button" id="save-token" class="secondary">Connect and test token</button></details>

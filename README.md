@@ -3,8 +3,11 @@
 **Keep your flow.** A local control panel for your Claude Code accounts and sessions.
 
 Experimental, macOS-first software—not an official Anthropic product. Live
-credential switching has been demonstrated on Claude Code 2.1.268; recovery from
-real quota exhaustion and unattended credential renewal are not verified features.
+credential switching has been demonstrated on Claude Code 2.1.268. Recovery from
+real quota exhaustion is not verified; automatic credential renewal is not implemented.
+
+This is an open-source experimental release, not a production-ready subscription
+load balancer. Unknown quota is never treated as available quota.
 
 A local dashboard for your own accounts and official Claude Code sessions. No
 inference proxy, no clauth runtime, no writes to your default Claude login.
@@ -57,7 +60,9 @@ Host headers are rejected. Do not expose it through a public tunnel.
 ## Connect accounts and work
 
 Click **Connect account → Continue with Claude**, then sign in with the account
-you want to add. The label is optional. Runway opens the official sign-in page and
+you want to add. There is no email field in Runway: the account is chosen on
+Claude’s site. Setup tokens do not expose a verified email, so cards use local
+nicknames, not verified identities. Runway opens the official sign-in page and
 checks the credential when authorization finishes. As disclosed before continuing,
 that check sends one small Haiku request and consumes a little subscription quota.
 Click **Use this account** after the check passes; existing unmanaged terminals

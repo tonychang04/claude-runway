@@ -76,3 +76,16 @@ action, and failed checks that show retry rather than readiness. These tests moc
 provider authorization; they do not establish that every real browser login or
 popup configuration succeeds. A visible sign-in link remains available if the
 automatic browser-tab handoff is blocked.
+
+## Reliability hardening
+
+An additional live check through the running manager's `/api/accounts/verify`
+returned success for the new setup token. The check was isolated and did not
+change the selected account or managed sessions. Official `claude auth status`
+reported logged-in subscription authentication but no email for that token;
+the profile endpoint returned HTTP 403. Identity remains explicitly unavailable.
+
+The unit suite now contains 20 passing checks, including revoked-token rejection,
+403 backoff, 401 handling, stale telemetry exclusion, partial-window age retention,
+and generic limits that do not fabricate quota percentages. These tests do not
+substitute for a real exhaustion/recovery experiment or implement token renewal.
