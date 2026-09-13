@@ -28,12 +28,12 @@ link. That link controls native terminal launching; never share it.
 
 ## Connect your subscription
 
-1. Click **Connect in Claude Code**.
-2. Runway opens Terminal running official `claude auth login`, with a separate
+1. Click **Add account**, read the short guide, then **Open Claude sign-in**.
+2. Runway opens Terminal running official `claude`, with a separate
    `CLAUDE_CONFIG_DIR`. Claude opens its own browser authentication flow.
-3. Complete sign-in directly with Claude. Any code goes in the native terminal,
-   never the Runway dashboard.
-4. Click **Check Claude status** to request official `claude auth status --json`.
+3. Complete sign-in and first-run setup directly with Claude. Any code goes in the
+   native terminal, never the Runway dashboard. Finish theme/setup prompts too.
+4. Click **I’ve signed in — confirm account** to request official `claude auth status --json`.
    Only the reported login state, email, method and subscription type are retained.
 5. Click **Open project**, choose an absolute project folder and model, and work
    in the native Claude terminal.
@@ -51,7 +51,10 @@ To use a different account without changing that work, create another profile.
 
 ## Usage and limits
 
-Type `/usage` in your native Claude terminal for current quota. Runway does not
+Click **View usage in Claude** to open the account's official `/usage` terminal,
+or type `/usage` in an existing native Claude terminal. Finish any first-run
+prompts if needed. Usage-screen display has not yet been live-verified after
+completion of those prompts on the development account. Runway does not
 call private Anthropic usage/profile endpoints. Work sessions may report documented
 status-line quota fields, displayed with observation time when available.
 Missing quota stays missing. Project settings or CLI changes may affect telemetry.

@@ -35,6 +35,7 @@ const server=http.createServer(async(req,res)=>{
   if(req.method==='POST'&&url.pathname==='/api/profiles')return json(res,201,manager.createProfile(b.name));
   if(req.method==='POST'&&url.pathname==='/api/profiles/check')return json(res,200,await manager.checkProfile(b.id));
   if(req.method==='POST'&&url.pathname==='/api/profiles/login')return json(res,201,await manager.startLogin(b.id));
+  if(req.method==='POST'&&url.pathname==='/api/profiles/usage')return json(res,201,await manager.usage(b.id));
   if(req.method==='POST'&&url.pathname==='/api/refresh'){await manager.refreshSessions();return json(res,200,{ok:true})}
   if(req.method==='POST'&&url.pathname==='/api/sessions')return json(res,201,await manager.launch(b));
   if(req.method==='POST'&&url.pathname==='/api/sessions/open')return json(res,200,await manager.openTerminal(b.id));

@@ -16,7 +16,7 @@ Claude may write its own credential files within each profile directory.
 
 Create a random UUID profile and an empty directory under native-profiles.
 Names are local nicknames. Auth metadata is initially unknown.
-Connect opens official `claude auth login` in a native tmux terminal.
+Connect opens official `claude` in a native tmux terminal.
 Runway never captures the terminal output or proxies login input.
 
 Check Claude status is an explicit action running `claude auth status --json`.
