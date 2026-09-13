@@ -1,24 +1,20 @@
 # Runway
+A local launcher and dashboard for **unmodified, official Claude Code**.
 
-**Keep your flow.** A local control panel for your Claude Code accounts and sessions.
+Claude owns sign-in, credential storage and renewal. Runway creates isolated
+profiles and opens native terminals. It does not accept tokens, copy credentials,
+refresh OAuth tokens, proxy inference, or rotate accounts.
 
-Experimental, macOS-first software—not an official Anthropic product. Live
-credential switching has been demonstrated on Claude Code 2.1.268. Recovery from
-real quota exhaustion is not verified; automatic credential renewal is not implemented.
+**Version 0.2 is an architecture change, not a finished automatic load balancer.**
+A profile is a separate Claude configuration—not a verified identity until
+official Claude reports one. Different profiles can sign in to the same account.
 
-This is an open-source experimental release, not a production-ready subscription
-load balancer. Unknown quota is never treated as available quota.
+## Quick start
 
-A local dashboard for your own accounts and official Claude Code sessions. No
-inference proxy, no clauth runtime, no writes to your default Claude login.
-
-## Start
-
-Requires Node.js 22+, tmux, and official Claude Code. Tested on macOS with Claude
-Code 2.1.268. No npm runtime dependencies.
+Requires macOS, Node.js 22+, tmux and official Claude Code installed separately.
+Do not run this dashboard on a public server.
 
 ```sh
-# Clone your repository, then:
 git clone https://github.com/tonychang04/claude-runway.git
 cd claude-runway
 npm ci
@@ -27,151 +23,80 @@ npm start
 node cli.mjs open
 ```
 
-`npm ci` installs development tools; the server itself has no npm runtime dependencies.
-Keep the repository in a stable location if you install the background service.
+The server binds only to http://127.0.0.1:43127. The CLI opens its private access
+link. That link controls native terminal launching; never share it.
 
-## What you get
+## Connect your subscription
 
-- A responsive account dashboard, tested with six simulated accounts.
-- Official setup-token enrollment or manual token entry, plus reconnect controls.
-- Periodic usage tracking, last-observed timestamps and expiry warnings.
-- Shared account selection for managed sessions; optional automatic switching.
-- Managed terminal access and best-effort read-only discovery of other local Claude processes.
+1. Click **Connect in Claude Code**.
+2. Runway opens Terminal running official `claude auth login`, with a separate
+   `CLAUDE_CONFIG_DIR`. Claude opens its own browser authentication flow.
+3. Complete sign-in directly with Claude. Any code goes in the native terminal,
+   never the Runway dashboard.
+4. Click **Check Claude status** to request official `claude auth status --json`.
+   Only the reported login state, email, method and subscription type are retained.
+5. Click **Open project**, choose an absolute project folder and model, and work
+   in the native Claude terminal.
 
-Other local processes are not automatically adopted. API-key, Bedrock, Vertex,
-and other provider authentication methods are not implemented here. Usage polling
-does not renew credentials, and no credential is guaranteed never to expire.
+Repeat to create another isolated profile. Use **Open Terminal** or **Copy terminal
+command** to reattach. A status result is not an inference test or a quota guarantee.
 
-## Project documentation
+On macOS, official Claude may ask for Keychain permission. Runway does not read
+Keychain or suppress native prompts. Sign-in and status checks are explicit user
+actions, not background credential probes.
 
-- [Specification](SPEC.md): behavior, architecture, constraints and acceptance criteria.
-- [Verification](VERIFICATION.md): observed results and remaining live-test gaps.
-- [Security](SECURITY.md): storage model, boundaries and safe reporting.
-- [Contributing](CONTRIBUTING.md): local development and test guidance.
-- [Runway release notes](ORBIT.md): current dashboard behavior.
+For an existing profile with running work, use `/login` in its Claude terminal if
+renewal is needed; Runway does not start a competing login for that profile.
+To use a different account without changing that work, create another profile.
 
-The source lives in `lib/` (account/session logic), `public/` (dashboard),
-`server.mjs` (local API), and `cli.mjs` (terminal entry point).
+## Usage and limits
 
-The dashboard listens only on `127.0.0.1:43127`. Its private access link is opened
-by the CLI. API calls require a random access key; foreign origins and unexpected
-Host headers are rejected. Do not expose it through a public tunnel.
+Type `/usage` in your native Claude terminal for current quota. Runway does not
+call private Anthropic usage/profile endpoints. Work sessions may report documented
+status-line quota fields, displayed with observation time when available.
+Missing quota stays missing. Project settings or CLI changes may affect telemetry.
 
-## Connect accounts and work
+Claude manages its own credential lifecycle. This is **not a guarantee that
+sign-in never expires**; follow Claude's instructions when reauthentication is needed.
 
-Click **Connect account → Continue with Claude**, then sign in with the account
-you want to add. There is no email field in Runway: the account is chosen on
-Claude’s site. Setup tokens do not expose a verified email, so cards use local
-nicknames, not verified identities. Runway opens the official sign-in page and
-checks the credential when authorization finishes. As disclosed before continuing,
-that check sends one small Haiku request and consumes a little subscription quota.
-Click **Use this account** after the check passes; existing unmanaged terminals
-are not switched. If popups are blocked, use the sign-in link in the dialog.
+Not implemented: automatic rotation, hot-swapping a running session's identity,
+cross-profile conversation transfer, cloud control, and verified unattended
+recovery from quota exhaustion. Runway does not bypass plan limits.
 
-Token pasting and authorization-code entry remain available under advanced/details
-sections. No custom OAuth implementation is used. Enrollment still needs human
-authentication; revoked or expired tokens need renewal. Sign-in must not be run
-inside the shared runtime directory.
+## Upgrade from the token-based prototype
 
-Select an account, then start a session with its workspace directory. Use the
-dashboard terminal or copy its tmux attach command to your terminal. Normal
-Claude workspace trust and permission prompts remain in place.
+Restart the dashboard service to stop the old polling/rotation code. Version 0.2
+uses a new `native-state.json` and a different tmux socket. Old credentials are
+not imported or read; the old vault, configuration and terminals remain on disk
+and are not deleted. Their account metadata is used only to show an upgrade notice.
 
-### Connected, but quota unavailable?
+Old browser token, switching, sign-in proxy and terminal-input endpoints return
+HTTP 410. Refresh the browser after upgrading. The old code is recoverable in Git
+history; its previous switching tests are not evidence for this native model.
 
-Saving a credential, making a Claude request, and reading quota are three different
-checks. Enrollment includes a connection check. Later, click **Test connection**
-on an account card to send another small Haiku request through official
-Claude in an isolated configuration. This consumes a little quota, requires your
-confirmation, and does not change the account used by existing sessions.
+Do not delete the legacy runtime while an old terminal is still using it. Review
+and revoke old credentials deliberately when you are ready to retire that setup.
 
-If the connection test passes but quota is unavailable, the token can make requests
-while the usage endpoint may reject or throttle it. You can manually select it
-with **Switch here** and start a managed session. Automatic selection requires
-recent quota and remains disabled for that account until quota is available.
-Adding an account alone does not select it or attach your existing terminals.
+## Local service and configuration
 
-To replace a token for an existing account, choose **Reconnect** on its card,
-not Connect account. Different tokens can have identical user-entered labels.
+`node install-service.mjs` prepares a LaunchAgent. Stop a foreground server before
+`node install-service.mjs --install`. The installer refuses to overwrite an
+existing service. It retains the legacy service name `local.switchboard.manager`.
 
-All sessions launched here share `.state/runtime` as `CLAUDE_CONFIG_DIR`, even
-when they work in different project directories. Changing the selected account
-updates their shared credential file. The CLI binary and process are not replaced.
-Normal sessions launched elsewhere are not adopted or changed. `/login` inside
-a managed terminal can create a Keychain entry that overrides the file; connect
-accounts through the dashboard instead. The browser input prevents `/login` and
-`/logout`, but an attached native terminal remains under the user's control.
+Configuration: `SWITCHBOARD_DATA` (default .state), `SWITCHBOARD_CLAUDE` (CLI path),
+`SWITCHBOARD_TMUX` (tmux executable), `PORT` (default 43127).
+Keep custom state directories outside the repository. These old variable names
+are retained for installation compatibility.
 
-Enable automatic switching to select a healthy, enabled account with recent quota
-when the active account reaches the threshold. Switching waits for managed
-responses to finish. Synthetic CLI limit errors mark the current account
-unavailable; after switching and a 35-second reload allowance, the manager sends
-one continuation only to an idle, empty prompt that was stopped by such an error.
-This does not guarantee recovery from every possible error banner.
+From a project directory:
+`node /absolute/path/to/cli.mjs launch <profile-id> [sonnet|opus|haiku]`.
+Profile IDs are available via `node cli.mjs status`.
 
-Usage is polled every 90 seconds with backoff. Supported status-line quota fields
-also update the dashboard after responses. Some setup tokens cannot query the
-usage endpoint: those accounts show unavailable usage until native session
-telemetry arrives. Unknown or stale quota is never presented as zero and never
-qualifies for automatic selection. Usage polling depends on an undocumented
-provider endpoint and may break; native status-line data is the documented fallback.
+## Development
 
-## Storage and lifecycle
+`npm test` runs isolated tests without real credentials.
+`npx playwright test test/native-dashboard.spec.mjs --workers=1` checks the UI
+with synthetic API responses and installed Chrome. Start the dashboard first.
 
-The vault uses AES-256-GCM and a mode-0600 key file in a mode-0700 state directory.
-This protects against accidental disclosure in account metadata, not another
-process running as the same OS user. The active CLI credential is necessarily a
-mode-0600 plaintext file. Refresh tokens are not accepted or rotated. Setup tokens
-avoid frequent refresh-token synchronization, but require renewal when revoked
-or expired. Short-lived imported access tokens are only suitable for testing.
-
-No Keychain reads/writes are made by the manager. Official Claude may use Keychain
-during enrollment; the manager never extracts its contents. The verified shared
-runtime has no matching Keychain item, so Claude falls back to the credential file.
-
-Stopping the dashboard leaves tmux sessions running. Automatic monitoring requires
-the manager process to run; a LaunchAgent can keep it alive across user logins.
-Run `node install-service.mjs` to prepare its configuration, then stop the foreground
-server and run `node install-service.mjs --install` to install it. This creates only
-`~/Library/LaunchAgents/local.switchboard.manager.plist` and refuses to overwrite an
-existing service. Logs are in `.state/service.log` and `.state/service.error.log`.
-Local monitoring pauses while the Mac sleeps. Existing Claude settings/plugins are
-not copied; project settings still apply and can override managed hooks. Never use
-`--safe-mode` for managed sessions when relying on activity and quota hooks.
-
-## Verification
-
-`npm test` checks account selection, stale-data handling, vault integrity, and
-credential isolation. See [VERIFICATION.md](VERIFICATION.md) for the real upstream
-interactive switching experiment and its precise limitations. A real five-hour
-exhaustion has not been induced. Public source availability is not a statement of
-provider approval; users remain subject to their subscription terms.
-
-## Configuration
-
-`SWITCHBOARD_DATA`: state directory (default `.state` beside the source).
-`SWITCHBOARD_CLAUDE`: absolute path to official Claude Code.
-`SWITCHBOARD_TMUX`: tmux executable (default PATH lookup).
-`PORT`: localhost port (default 43127).
-
-The source is MIT licensed. Never publish `.state`, access links, credentials,
-transcripts, or enrollment output.
-
-Browser checks: `npx playwright test test/dashboard.spec.mjs --workers=1` requires
-Chrome and a running dashboard with a connected account and session. The real
-native switching test is deliberately opt-in (`SWITCHBOARD_LIVE_TEST=1`): it expects
-two connected healthy accounts and a test session containing a JavaScript `label`
-example with value `MAPLE-482`. It switches the selected account and sends one real
-prompt. Do not run it against an unrelated work session.
-
-The six-account layout test uses fixtures, not real credentials:
-`npx playwright test test/dashboard-six.spec.mjs --workers=1`.
-CI runs only the isolated unit tests; it does not sign in or make inference requests.
-
-### Compatibility names
-
-Runway was initially called Switchboard. `SWITCHBOARD_*` environment variables,
-the `local.switchboard.manager` LaunchAgent and existing tmux socket names remain
-unchanged to preserve current installations. There is no globally installed
-`orbit` command yet; use `node /absolute/path/to/cli.mjs launch` from your project
-directory, or start a session in the dashboard.
+See [SPEC.md](SPEC.md), [SECURITY.md](SECURITY.md), [VERIFICATION.md](VERIFICATION.md)
+and [CONTRIBUTING.md](CONTRIBUTING.md). MIT licensed; not affiliated with Anthropic.

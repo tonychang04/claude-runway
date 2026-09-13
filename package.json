@@ -1,9 +1,9 @@
 {
   "name": "claude-runway",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Local account and session manager for the official Claude Code CLI. No inference proxy.",
+  "description": "Local native-session launcher. Official Claude Code owns authentication and credentials.",
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs"

@@ -1,4 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';
-import {retryDelay,mergeWindows,eligible} from '../lib/core.mjs';
-test('retry-after supports seconds and dates with bounded delays',()=>{const now=Date.now();assert.equal(retryDelay('120',now),120000);assert.equal(retryDelay('bad',now),90000);assert.equal(retryDelay('-1',now),90000);assert.equal(retryDelay('999999999',now),86400000);assert.ok(retryDelay(new Date(now+180000).toUTCString(),now)>179000)});
-test('partial telemetry preserves weekly quota and its original age',()=>{const old=new Date(Date.now()-600000).toISOString(),now=new Date().toISOString();const windows=mergeWindows([{key:'seven_day',used:0}],[{key:'five_hour',used:1}],old,now);assert.equal(windows[0].observedAt,old);assert.equal(windows[1].observedAt,now);assert.equal(!!eligible({enabled:true,auth:'ok',observedAt:now,windows},95),false)});

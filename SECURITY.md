@@ -1,24 +1,22 @@
 # Security
+Runway 0.2 is local-only experimental software. Never publish its access link,
+expose the HTTP listener through a tunnel, or share its data directory.
 
-Runway is experimental local software. Do not expose its HTTP listener through a
-public tunnel, reverse proxy or shared network. The private dashboard link grants
-control over managed terminals and accounts; treat it as a credential.
+Official Claude owns authentication. Runway no longer reads Keychain, accepts
+tokens, copies credential files, invokes OAuth refresh, proxies sign-in codes or
+captures native terminal content. Explicit Claude commands may trigger native
+Keychain prompts. Profile directories can contain credentials written by Claude.
 
-Never commit `.state/`, custom state directories, environment files, tokens,
-enrollment screens, transcripts, access links or real-account screenshots.
-If using `SWITCHBOARD_DATA`, keep that directory outside the repository.
+Runway's dashboard key grants profile and native-terminal launching access. State
+is protected by local file permissions, not against malware running as the same OS
+user. The old prototype vault may still exist on upgraded installations: it is
+unused, not automatically deleted or revoked. Backups may include old and native
+credentials. Retire them deliberately without deleting active sessions.
 
-The vault uses AES-256-GCM with a local mode-0600 key. The key is stored on the
-same Mac. Managed Claude requires a mode-0600 plaintext credential file. This does
-not defend against malicious software running as the same user, full-disk access,
-or an attacker who obtains both vault and key. Backups may contain credentials.
+Never commit .state, custom state directories, private links, credentials or
+personal transcripts. Run scripts/audit-history.mjs before publishing; its targeted
+patterns are not a complete security audit. Report vulnerabilities privately to
+the maintainer, never with live credentials attached.
 
-The manager does not access Keychain. Native Claude enrollment may use Keychain.
-Credentials can expire or be revoked; there is no automatic renewal guarantee.
-Usage tracking relies partly on an undocumented endpoint.
-
-For a suspected vulnerability, contact the repository maintainer privately before
-posting details. When hosted on GitHub, use private vulnerability reporting if
-enabled. Do not post credentials, access links, transcripts or raw state in issues.
-If a token leaks, revoke it with the provider and reconnect; deleting it from Git
-does not make an exposed credential safe.
+See Anthropic's current authentication and legal/compliance documentation.
+Native sign-in ownership does not guarantee that every integration is approved.

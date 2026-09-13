@@ -10,6 +10,6 @@ try{
  if(!server||!key)throw Error('Start the manager first: npm start');
  if(process.argv[2]==='open'){const url=server.origin+'/#access='+key;const r=spawnSync('open',[url]);if(r.status!==0)throw Error('Could not open browser');}
  else if(process.argv[2]==='status'){const s=await request('/api/status');console.log(JSON.stringify(s,null,2));}
- else if(process.argv[2]==='launch'){const s=await request('/api/sessions',{cwd:process.cwd(),model:process.argv[3]||'sonnet'});const state=await request('/api/status');const entry=state.sessions.find(x=>x.id===s.id);const args=entry.attach.split(' ');const r=spawnSync(args[0],args.slice(1),{stdio:'inherit'});process.exitCode=r.status||0;}
- else console.log('Usage: node cli.mjs open | status | launch [sonnet|opus|haiku]');
+ else if(process.argv[2]==='launch'){const profileId=process.argv[3];if(!profileId)throw Error('Usage: node cli.mjs launch <profile-id> [sonnet|opus|haiku]');const s=await request('/api/sessions',{profileId,cwd:process.cwd(),model:process.argv[4]||'sonnet'});const socket='runway-native-'+(await import('node:crypto')).createHash('sha256').update(root).digest('hex').slice(0,12);const r=spawnSync(process.env.SWITCHBOARD_TMUX||'tmux',['-L',socket,'attach','-t',s.name],{stdio:'inherit'});process.exitCode=r.status||0;}
+ else console.log('Usage: node cli.mjs open | status | launch <profile-id> [sonnet|opus|haiku]');
 }catch(e){console.error(e.message);process.exitCode=1}
